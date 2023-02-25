@@ -112,7 +112,11 @@ func Serve(catalog data.Catalog) {
 		// ListenAndServe returns http.ErrServerClosed when the server receives
 		// a call to Shutdown(). Other errors are unexpected.
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatal(err)
+			// log.Fatal(err)
+			// scanner := bufio.NewScanner(os.Stdin)
+			// scanner.Scan()
+			// test := scanner.Text()
+			print(err)
 		}
 	}()
 
@@ -122,7 +126,8 @@ func Serve(catalog data.Catalog) {
 			// ListenAndServe returns http.ErrServerClosed when the server receives
 			// a call to Shutdown(). Other errors are unexpected.
 			if err := serverTLS.ListenAndServeTLS(confServ.TlsServerCertificateFile, confServ.TlsServerPrivateKeyFile); err != nil && err != http.ErrServerClosed {
-				log.Fatal(err)
+				// log.Fatal(err)
+				print(err)
 			}
 		}()
 	}

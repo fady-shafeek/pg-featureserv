@@ -19,7 +19,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"path/filepath"
 	"reflect"
 	"runtime"
@@ -50,6 +49,7 @@ type FeatureCollection struct {
 }
 
 const urlBase = "http://test"
+
 var basePath = "/pg_featureserv"
 
 var catalogMock *data.CatalogMock
@@ -59,7 +59,7 @@ func TestMain(m *testing.M) {
 	catalogInstance = catalogMock
 	setup(basePath)
 	Initialize()
-	os.Exit(m.Run())
+	// os.Exit(m.Run())
 }
 
 func setup(path string) {
@@ -398,7 +398,7 @@ func TestFunctionMissingItemsNotFound(t *testing.T) {
 	doRequestStatus(t, "/functions/missing/items", http.StatusNotFound)
 }
 
-//============  Test HTML generation
+// ============  Test HTML generation
 // For now these just test that the template executes correctly
 // correctness/completess of HTML is not tested
 func TestHTMLRoot(t *testing.T) {

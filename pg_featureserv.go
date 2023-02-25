@@ -28,6 +28,7 @@ Logging to stdout
 */
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 
@@ -61,16 +62,25 @@ func initCommnandOptions() {
 }
 
 func main() {
+	// Create a new scanner to read from the console
+	scanner := bufio.NewScanner(os.Stdin)
+
+	// Display a prompt to the user and read their input
+	fmt.Print("Enter your connection string For Examble: 'postgres://username:password@localhost:5432/gis' then press enter")
+	fmt.Println("")
+	scanner.Scan()
+	db_credintials := scanner.Text()
+	os.Setenv("DATABASE_URL", db_credintials)
 	getopt.Parse()
 
 	if flagHelp {
 		getopt.Usage()
-		os.Exit(1)
+		// os.Exit(1)
 	}
 
 	if flagVersion {
 		fmt.Printf("%s %s\n", conf.AppConfig.Name, conf.AppConfig.Version)
-		os.Exit(1)
+		// os.Exit(1)
 	}
 
 	log.Infof("----  %s - Version %s ----------\n", conf.AppConfig.Name, conf.AppConfig.Version)
