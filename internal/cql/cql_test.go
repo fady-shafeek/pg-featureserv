@@ -1,7 +1,7 @@
 package cql
 
 /*
- Copyright 2019 Crunchy Data Solutions, Inc.
+ Copyright 2019 - 2024 Crunchy Data Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -89,6 +89,11 @@ func TestArithmetic(t *testing.T) {
 	checkCQL(t, "p = 'a' || x || 'b'", "\"p\" = 'a' || \"x\" || 'b'")
 }
 
+func TestLiteral(t *testing.T) {
+	checkCQL(t, "p > 1.0E+1", "\"p\" > 1.0E+1")
+	checkCQL(t, "p > 1.0e+1", "\"p\" > 1.0e+1")
+}
+
 func TestGeometryLiteral(t *testing.T) {
 	checkCQL(t, "equals(geom, POINT(0 0))",
 		"ST_Equals(\"geom\",'SRID=4326;POINT(0 0)'::geometry)")
@@ -121,9 +126,15 @@ func TestBooleanExpression(t *testing.T) {
 	checkCQL(t, "x > 1 AND x < 9", "\"x\" > 1 AND \"x\" < 9")
 	checkCQL(t, "x = 1 OR x = 2", "\"x\" = 1 OR \"x\" = 2")
 	checkCQL(t, "(x = 1 OR x = 2) AND y < 4", "(\"x\" = 1 OR \"x\" = 2) AND \"y\" < 4")
+	checkCQL(t, "x = 1 OR (x = 2 AND y < 4)", "\"x\" = 1 OR (\"x\" = 2 AND \"y\" < 4)")
+	//-- allow multiple boolean ops
+	checkCQL(t, "x = 1 AND y = 2 AND z = 3 OR a = 4", "\"x\" = 1 AND \"y\" = 2 AND \"z\" = 3 OR \"a\" = 4")
+
 	checkCQL(t, "NOT x IS NOT NULL", "NOT  \"x\" IS NOT NULL")
 	checkCQL(t, "NOT TRUE OR FALSE", "NOT TRUE OR FALSE")
 	checkCQL(t, "NOT true OR false", "NOT true OR false")
+	checkCQL(t, "x = 1 OR NOT (x = 2 AND y < 4)", "\"x\" = 1 OR NOT (\"x\" = 2 AND \"y\" < 4)")
+
 }
 
 func TestTemporal(t *testing.T) {
@@ -155,6 +166,7 @@ func checkCQL(t *testing.T, cqlStr string, sql string) {
 	actual, err := TranspileToSQL(cqlStr, 4326, 4326)
 	if err != nil {
 		fmt.Printf("%v\n", err)
+		t.FailNow()
 	}
 	actual = strings.TrimSpace(actual)
 	equals(t, sql, actual, "")
@@ -164,6 +176,7 @@ func checkCQLWithSRID(t *testing.T, cqlStr string, filterSRID int, sourceSRID in
 	actual, err := TranspileToSQL(cqlStr, filterSRID, sourceSRID)
 	if err != nil {
 		fmt.Printf("%v\n", err)
+		t.FailNow()
 	}
 	actual = strings.TrimSpace(actual)
 	equals(t, sql, actual, "")

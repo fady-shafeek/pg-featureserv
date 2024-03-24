@@ -1,7 +1,28 @@
 # pg_featureserv Version History
 
-## Version 1.3
+## Version ??
 *Released: TBD*
+
+### Bug Fixes
+
+* Fix CQL parser to allow multiple AND/OR terms (#162)
+
+
+## Version 1.3.1
+*Released: 2024 Feb 6*
+
+### Improvements
+
+* Container build update (#154)
+* Improve map UI layout (#146)
+
+### Bug Fixes
+
+* Fix CQL parser to allow scientific notation using `e` (#141)
+
+
+## Version 1.3
+*Released: 2023 July 10*
 
 ### New Features
 

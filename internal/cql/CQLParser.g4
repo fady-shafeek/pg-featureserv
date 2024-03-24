@@ -16,12 +16,17 @@ options { tokenVocab=CqlLexer; contextSuperClass=CqlContext; }
 #============================================================================*/
 
 cqlFilter : booleanExpression EOF;
-booleanExpression : booleanTerm ( OR booleanTerm )?;
-booleanTerm : booleanFactor ( AND booleanFactor )?;
-booleanFactor : ( NOT )? booleanPrimary;
-booleanPrimary : predicate
-                | booleanLiteral
-                | LEFTPAREN booleanExpression RIGHTPAREN;
+booleanExpression                              
+            : LEFTPAREN booleanExpression RIGHTPAREN                # BoolExprParen
+            | left=booleanExpression AND right=booleanExpression    # BoolExprAnd
+            | left=booleanExpression OR  right=booleanExpression    # BoolExprOr
+            | NOT booleanExpression                                 # BoolExprNot
+            | booleanTerm                                           # BoolExprTerm
+            ;
+//booleanFactor : ( NOT )? booleanPrimary;
+booleanTerm : predicate
+            | booleanLiteral
+            ;
 
 /*============================================================================
 #  CQL supports scalar, spatial, temporal and existence predicates.
@@ -41,13 +46,14 @@ predicate : comparisonPredicate
 # an operator to test if a scalar expression is NULL or not.
 #============================================================================*/
 
-comparisonPredicate : binaryComparisonPredicate
-                    | isLikePredicate
-                    | isBetweenPredicate
-                    | isInListPredicate
-                    | isNullPredicate;
+comparisonPredicate : binaryComparisonPredicate # PredicateBinaryComp
+                    | isLikePredicate           # PredicateLike
+                    | isBetweenPredicate        # PredicateBetween
+                    | isInListPredicate         # PredicateIn
+                    | isNullPredicate           # PredicateIsNull
+                    ;
 
-binaryComparisonPredicate : scalarExpression ComparisonOperator scalarExpression;
+binaryComparisonPredicate : left=scalarExpression op=ComparisonOperator right=scalarExpression;
 
 isLikePredicate :  propertyName (NOT)? ( LIKE | ILIKE ) characterLiteral;
 
@@ -73,16 +79,16 @@ isNullPredicate : propertyName IS (NOT)? NULL;
 # The Postgres parser will provide a final check on the correctness.
 #============================================================================*/
 
-scalarExpression : scalarValue
-                    | LEFTPAREN scalarExpression RIGHTPAREN
-                    | scalarExpression ArithmeticOperator scalarExpression
-                    ;
+scalarExpression : val=scalarValue                                                  # ScalarVal
+            | LEFTPAREN expr=scalarExpression RIGHTPAREN                            # ScalarParen
+            | left=scalarExpression op=ArithmeticOperator right=scalarExpression    # ScalarExpr
+            ;
 
-scalarValue : propertyName
-            | characterLiteral
-            | numericLiteral
-            | booleanLiteral
-            | temporalLiteral
+scalarValue : propertyName      # LiteralName
+            | characterLiteral  # LiteralString
+            | numericLiteral    # LiteralNumeric
+            | booleanLiteral    # LiteralBoolean
+            | temporalLiteral   # LiteralTemporal
 //                   | function
              ;
 

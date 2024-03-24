@@ -26,11 +26,35 @@ func (s *BaseCQLParserListener) EnterCqlFilter(ctx *CqlFilterContext) {}
 // ExitCqlFilter is called when production cqlFilter is exited.
 func (s *BaseCQLParserListener) ExitCqlFilter(ctx *CqlFilterContext) {}
 
-// EnterBooleanExpression is called when production booleanExpression is entered.
-func (s *BaseCQLParserListener) EnterBooleanExpression(ctx *BooleanExpressionContext) {}
+// EnterBoolExprParen is called when production BoolExprParen is entered.
+func (s *BaseCQLParserListener) EnterBoolExprParen(ctx *BoolExprParenContext) {}
 
-// ExitBooleanExpression is called when production booleanExpression is exited.
-func (s *BaseCQLParserListener) ExitBooleanExpression(ctx *BooleanExpressionContext) {}
+// ExitBoolExprParen is called when production BoolExprParen is exited.
+func (s *BaseCQLParserListener) ExitBoolExprParen(ctx *BoolExprParenContext) {}
+
+// EnterBoolExprAnd is called when production BoolExprAnd is entered.
+func (s *BaseCQLParserListener) EnterBoolExprAnd(ctx *BoolExprAndContext) {}
+
+// ExitBoolExprAnd is called when production BoolExprAnd is exited.
+func (s *BaseCQLParserListener) ExitBoolExprAnd(ctx *BoolExprAndContext) {}
+
+// EnterBoolExprNot is called when production BoolExprNot is entered.
+func (s *BaseCQLParserListener) EnterBoolExprNot(ctx *BoolExprNotContext) {}
+
+// ExitBoolExprNot is called when production BoolExprNot is exited.
+func (s *BaseCQLParserListener) ExitBoolExprNot(ctx *BoolExprNotContext) {}
+
+// EnterBoolExprTerm is called when production BoolExprTerm is entered.
+func (s *BaseCQLParserListener) EnterBoolExprTerm(ctx *BoolExprTermContext) {}
+
+// ExitBoolExprTerm is called when production BoolExprTerm is exited.
+func (s *BaseCQLParserListener) ExitBoolExprTerm(ctx *BoolExprTermContext) {}
+
+// EnterBoolExprOr is called when production BoolExprOr is entered.
+func (s *BaseCQLParserListener) EnterBoolExprOr(ctx *BoolExprOrContext) {}
+
+// ExitBoolExprOr is called when production BoolExprOr is exited.
+func (s *BaseCQLParserListener) ExitBoolExprOr(ctx *BoolExprOrContext) {}
 
 // EnterBooleanTerm is called when production booleanTerm is entered.
 func (s *BaseCQLParserListener) EnterBooleanTerm(ctx *BooleanTermContext) {}
@@ -38,36 +62,49 @@ func (s *BaseCQLParserListener) EnterBooleanTerm(ctx *BooleanTermContext) {}
 // ExitBooleanTerm is called when production booleanTerm is exited.
 func (s *BaseCQLParserListener) ExitBooleanTerm(ctx *BooleanTermContext) {}
 
-// EnterBooleanFactor is called when production booleanFactor is entered.
-func (s *BaseCQLParserListener) EnterBooleanFactor(ctx *BooleanFactorContext) {}
-
-// ExitBooleanFactor is called when production booleanFactor is exited.
-func (s *BaseCQLParserListener) ExitBooleanFactor(ctx *BooleanFactorContext) {}
-
-// EnterBooleanPrimary is called when production booleanPrimary is entered.
-func (s *BaseCQLParserListener) EnterBooleanPrimary(ctx *BooleanPrimaryContext) {}
-
-// ExitBooleanPrimary is called when production booleanPrimary is exited.
-func (s *BaseCQLParserListener) ExitBooleanPrimary(ctx *BooleanPrimaryContext) {}
-
 // EnterPredicate is called when production predicate is entered.
 func (s *BaseCQLParserListener) EnterPredicate(ctx *PredicateContext) {}
 
 // ExitPredicate is called when production predicate is exited.
 func (s *BaseCQLParserListener) ExitPredicate(ctx *PredicateContext) {}
 
-// EnterComparisonPredicate is called when production comparisonPredicate is entered.
-func (s *BaseCQLParserListener) EnterComparisonPredicate(ctx *ComparisonPredicateContext) {}
+// EnterPredicateBinaryComp is called when production PredicateBinaryComp is entered.
+func (s *BaseCQLParserListener) EnterPredicateBinaryComp(ctx *PredicateBinaryCompContext) {}
 
-// ExitComparisonPredicate is called when production comparisonPredicate is exited.
-func (s *BaseCQLParserListener) ExitComparisonPredicate(ctx *ComparisonPredicateContext) {}
+// ExitPredicateBinaryComp is called when production PredicateBinaryComp is exited.
+func (s *BaseCQLParserListener) ExitPredicateBinaryComp(ctx *PredicateBinaryCompContext) {}
+
+// EnterPredicateLike is called when production PredicateLike is entered.
+func (s *BaseCQLParserListener) EnterPredicateLike(ctx *PredicateLikeContext) {}
+
+// ExitPredicateLike is called when production PredicateLike is exited.
+func (s *BaseCQLParserListener) ExitPredicateLike(ctx *PredicateLikeContext) {}
+
+// EnterPredicateBetween is called when production PredicateBetween is entered.
+func (s *BaseCQLParserListener) EnterPredicateBetween(ctx *PredicateBetweenContext) {}
+
+// ExitPredicateBetween is called when production PredicateBetween is exited.
+func (s *BaseCQLParserListener) ExitPredicateBetween(ctx *PredicateBetweenContext) {}
+
+// EnterPredicateIn is called when production PredicateIn is entered.
+func (s *BaseCQLParserListener) EnterPredicateIn(ctx *PredicateInContext) {}
+
+// ExitPredicateIn is called when production PredicateIn is exited.
+func (s *BaseCQLParserListener) ExitPredicateIn(ctx *PredicateInContext) {}
+
+// EnterPredicateIsNull is called when production PredicateIsNull is entered.
+func (s *BaseCQLParserListener) EnterPredicateIsNull(ctx *PredicateIsNullContext) {}
+
+// ExitPredicateIsNull is called when production PredicateIsNull is exited.
+func (s *BaseCQLParserListener) ExitPredicateIsNull(ctx *PredicateIsNullContext) {}
 
 // EnterBinaryComparisonPredicate is called when production binaryComparisonPredicate is entered.
 func (s *BaseCQLParserListener) EnterBinaryComparisonPredicate(ctx *BinaryComparisonPredicateContext) {
 }
 
 // ExitBinaryComparisonPredicate is called when production binaryComparisonPredicate is exited.
-func (s *BaseCQLParserListener) ExitBinaryComparisonPredicate(ctx *BinaryComparisonPredicateContext) {}
+func (s *BaseCQLParserListener) ExitBinaryComparisonPredicate(ctx *BinaryComparisonPredicateContext) {
+}
 
 // EnterIsLikePredicate is called when production isLikePredicate is entered.
 func (s *BaseCQLParserListener) EnterIsLikePredicate(ctx *IsLikePredicateContext) {}
@@ -93,17 +130,53 @@ func (s *BaseCQLParserListener) EnterIsNullPredicate(ctx *IsNullPredicateContext
 // ExitIsNullPredicate is called when production isNullPredicate is exited.
 func (s *BaseCQLParserListener) ExitIsNullPredicate(ctx *IsNullPredicateContext) {}
 
-// EnterScalarExpression is called when production scalarExpression is entered.
-func (s *BaseCQLParserListener) EnterScalarExpression(ctx *ScalarExpressionContext) {}
+// EnterScalarExpr is called when production ScalarExpr is entered.
+func (s *BaseCQLParserListener) EnterScalarExpr(ctx *ScalarExprContext) {}
 
-// ExitScalarExpression is called when production scalarExpression is exited.
-func (s *BaseCQLParserListener) ExitScalarExpression(ctx *ScalarExpressionContext) {}
+// ExitScalarExpr is called when production ScalarExpr is exited.
+func (s *BaseCQLParserListener) ExitScalarExpr(ctx *ScalarExprContext) {}
 
-// EnterScalarValue is called when production scalarValue is entered.
-func (s *BaseCQLParserListener) EnterScalarValue(ctx *ScalarValueContext) {}
+// EnterScalarVal is called when production ScalarVal is entered.
+func (s *BaseCQLParserListener) EnterScalarVal(ctx *ScalarValContext) {}
 
-// ExitScalarValue is called when production scalarValue is exited.
-func (s *BaseCQLParserListener) ExitScalarValue(ctx *ScalarValueContext) {}
+// ExitScalarVal is called when production ScalarVal is exited.
+func (s *BaseCQLParserListener) ExitScalarVal(ctx *ScalarValContext) {}
+
+// EnterScalarParen is called when production ScalarParen is entered.
+func (s *BaseCQLParserListener) EnterScalarParen(ctx *ScalarParenContext) {}
+
+// ExitScalarParen is called when production ScalarParen is exited.
+func (s *BaseCQLParserListener) ExitScalarParen(ctx *ScalarParenContext) {}
+
+// EnterLiteralName is called when production LiteralName is entered.
+func (s *BaseCQLParserListener) EnterLiteralName(ctx *LiteralNameContext) {}
+
+// ExitLiteralName is called when production LiteralName is exited.
+func (s *BaseCQLParserListener) ExitLiteralName(ctx *LiteralNameContext) {}
+
+// EnterLiteralString is called when production LiteralString is entered.
+func (s *BaseCQLParserListener) EnterLiteralString(ctx *LiteralStringContext) {}
+
+// ExitLiteralString is called when production LiteralString is exited.
+func (s *BaseCQLParserListener) ExitLiteralString(ctx *LiteralStringContext) {}
+
+// EnterLiteralNumeric is called when production LiteralNumeric is entered.
+func (s *BaseCQLParserListener) EnterLiteralNumeric(ctx *LiteralNumericContext) {}
+
+// ExitLiteralNumeric is called when production LiteralNumeric is exited.
+func (s *BaseCQLParserListener) ExitLiteralNumeric(ctx *LiteralNumericContext) {}
+
+// EnterLiteralBoolean is called when production LiteralBoolean is entered.
+func (s *BaseCQLParserListener) EnterLiteralBoolean(ctx *LiteralBooleanContext) {}
+
+// ExitLiteralBoolean is called when production LiteralBoolean is exited.
+func (s *BaseCQLParserListener) ExitLiteralBoolean(ctx *LiteralBooleanContext) {}
+
+// EnterLiteralTemporal is called when production LiteralTemporal is entered.
+func (s *BaseCQLParserListener) EnterLiteralTemporal(ctx *LiteralTemporalContext) {}
+
+// ExitLiteralTemporal is called when production LiteralTemporal is exited.
+func (s *BaseCQLParserListener) ExitLiteralTemporal(ctx *LiteralTemporalContext) {}
 
 // EnterPropertyName is called when production propertyName is entered.
 func (s *BaseCQLParserListener) EnterPropertyName(ctx *PropertyNameContext) {}

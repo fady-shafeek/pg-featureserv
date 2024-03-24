@@ -10,23 +10,41 @@ type CQLParserListener interface {
 	// EnterCqlFilter is called when entering the cqlFilter production.
 	EnterCqlFilter(c *CqlFilterContext)
 
-	// EnterBooleanExpression is called when entering the booleanExpression production.
-	EnterBooleanExpression(c *BooleanExpressionContext)
+	// EnterBoolExprParen is called when entering the BoolExprParen production.
+	EnterBoolExprParen(c *BoolExprParenContext)
+
+	// EnterBoolExprAnd is called when entering the BoolExprAnd production.
+	EnterBoolExprAnd(c *BoolExprAndContext)
+
+	// EnterBoolExprNot is called when entering the BoolExprNot production.
+	EnterBoolExprNot(c *BoolExprNotContext)
+
+	// EnterBoolExprTerm is called when entering the BoolExprTerm production.
+	EnterBoolExprTerm(c *BoolExprTermContext)
+
+	// EnterBoolExprOr is called when entering the BoolExprOr production.
+	EnterBoolExprOr(c *BoolExprOrContext)
 
 	// EnterBooleanTerm is called when entering the booleanTerm production.
 	EnterBooleanTerm(c *BooleanTermContext)
 
-	// EnterBooleanFactor is called when entering the booleanFactor production.
-	EnterBooleanFactor(c *BooleanFactorContext)
-
-	// EnterBooleanPrimary is called when entering the booleanPrimary production.
-	EnterBooleanPrimary(c *BooleanPrimaryContext)
-
 	// EnterPredicate is called when entering the predicate production.
 	EnterPredicate(c *PredicateContext)
 
-	// EnterComparisonPredicate is called when entering the comparisonPredicate production.
-	EnterComparisonPredicate(c *ComparisonPredicateContext)
+	// EnterPredicateBinaryComp is called when entering the PredicateBinaryComp production.
+	EnterPredicateBinaryComp(c *PredicateBinaryCompContext)
+
+	// EnterPredicateLike is called when entering the PredicateLike production.
+	EnterPredicateLike(c *PredicateLikeContext)
+
+	// EnterPredicateBetween is called when entering the PredicateBetween production.
+	EnterPredicateBetween(c *PredicateBetweenContext)
+
+	// EnterPredicateIn is called when entering the PredicateIn production.
+	EnterPredicateIn(c *PredicateInContext)
+
+	// EnterPredicateIsNull is called when entering the PredicateIsNull production.
+	EnterPredicateIsNull(c *PredicateIsNullContext)
 
 	// EnterBinaryComparisonPredicate is called when entering the binaryComparisonPredicate production.
 	EnterBinaryComparisonPredicate(c *BinaryComparisonPredicateContext)
@@ -43,11 +61,29 @@ type CQLParserListener interface {
 	// EnterIsNullPredicate is called when entering the isNullPredicate production.
 	EnterIsNullPredicate(c *IsNullPredicateContext)
 
-	// EnterScalarExpression is called when entering the scalarExpression production.
-	EnterScalarExpression(c *ScalarExpressionContext)
+	// EnterScalarExpr is called when entering the ScalarExpr production.
+	EnterScalarExpr(c *ScalarExprContext)
 
-	// EnterScalarValue is called when entering the scalarValue production.
-	EnterScalarValue(c *ScalarValueContext)
+	// EnterScalarVal is called when entering the ScalarVal production.
+	EnterScalarVal(c *ScalarValContext)
+
+	// EnterScalarParen is called when entering the ScalarParen production.
+	EnterScalarParen(c *ScalarParenContext)
+
+	// EnterLiteralName is called when entering the LiteralName production.
+	EnterLiteralName(c *LiteralNameContext)
+
+	// EnterLiteralString is called when entering the LiteralString production.
+	EnterLiteralString(c *LiteralStringContext)
+
+	// EnterLiteralNumeric is called when entering the LiteralNumeric production.
+	EnterLiteralNumeric(c *LiteralNumericContext)
+
+	// EnterLiteralBoolean is called when entering the LiteralBoolean production.
+	EnterLiteralBoolean(c *LiteralBooleanContext)
+
+	// EnterLiteralTemporal is called when entering the LiteralTemporal production.
+	EnterLiteralTemporal(c *LiteralTemporalContext)
 
 	// EnterPropertyName is called when entering the propertyName production.
 	EnterPropertyName(c *PropertyNameContext)
@@ -115,23 +151,41 @@ type CQLParserListener interface {
 	// ExitCqlFilter is called when exiting the cqlFilter production.
 	ExitCqlFilter(c *CqlFilterContext)
 
-	// ExitBooleanExpression is called when exiting the booleanExpression production.
-	ExitBooleanExpression(c *BooleanExpressionContext)
+	// ExitBoolExprParen is called when exiting the BoolExprParen production.
+	ExitBoolExprParen(c *BoolExprParenContext)
+
+	// ExitBoolExprAnd is called when exiting the BoolExprAnd production.
+	ExitBoolExprAnd(c *BoolExprAndContext)
+
+	// ExitBoolExprNot is called when exiting the BoolExprNot production.
+	ExitBoolExprNot(c *BoolExprNotContext)
+
+	// ExitBoolExprTerm is called when exiting the BoolExprTerm production.
+	ExitBoolExprTerm(c *BoolExprTermContext)
+
+	// ExitBoolExprOr is called when exiting the BoolExprOr production.
+	ExitBoolExprOr(c *BoolExprOrContext)
 
 	// ExitBooleanTerm is called when exiting the booleanTerm production.
 	ExitBooleanTerm(c *BooleanTermContext)
 
-	// ExitBooleanFactor is called when exiting the booleanFactor production.
-	ExitBooleanFactor(c *BooleanFactorContext)
-
-	// ExitBooleanPrimary is called when exiting the booleanPrimary production.
-	ExitBooleanPrimary(c *BooleanPrimaryContext)
-
 	// ExitPredicate is called when exiting the predicate production.
 	ExitPredicate(c *PredicateContext)
 
-	// ExitComparisonPredicate is called when exiting the comparisonPredicate production.
-	ExitComparisonPredicate(c *ComparisonPredicateContext)
+	// ExitPredicateBinaryComp is called when exiting the PredicateBinaryComp production.
+	ExitPredicateBinaryComp(c *PredicateBinaryCompContext)
+
+	// ExitPredicateLike is called when exiting the PredicateLike production.
+	ExitPredicateLike(c *PredicateLikeContext)
+
+	// ExitPredicateBetween is called when exiting the PredicateBetween production.
+	ExitPredicateBetween(c *PredicateBetweenContext)
+
+	// ExitPredicateIn is called when exiting the PredicateIn production.
+	ExitPredicateIn(c *PredicateInContext)
+
+	// ExitPredicateIsNull is called when exiting the PredicateIsNull production.
+	ExitPredicateIsNull(c *PredicateIsNullContext)
 
 	// ExitBinaryComparisonPredicate is called when exiting the binaryComparisonPredicate production.
 	ExitBinaryComparisonPredicate(c *BinaryComparisonPredicateContext)
@@ -148,11 +202,29 @@ type CQLParserListener interface {
 	// ExitIsNullPredicate is called when exiting the isNullPredicate production.
 	ExitIsNullPredicate(c *IsNullPredicateContext)
 
-	// ExitScalarExpression is called when exiting the scalarExpression production.
-	ExitScalarExpression(c *ScalarExpressionContext)
+	// ExitScalarExpr is called when exiting the ScalarExpr production.
+	ExitScalarExpr(c *ScalarExprContext)
 
-	// ExitScalarValue is called when exiting the scalarValue production.
-	ExitScalarValue(c *ScalarValueContext)
+	// ExitScalarVal is called when exiting the ScalarVal production.
+	ExitScalarVal(c *ScalarValContext)
+
+	// ExitScalarParen is called when exiting the ScalarParen production.
+	ExitScalarParen(c *ScalarParenContext)
+
+	// ExitLiteralName is called when exiting the LiteralName production.
+	ExitLiteralName(c *LiteralNameContext)
+
+	// ExitLiteralString is called when exiting the LiteralString production.
+	ExitLiteralString(c *LiteralStringContext)
+
+	// ExitLiteralNumeric is called when exiting the LiteralNumeric production.
+	ExitLiteralNumeric(c *LiteralNumericContext)
+
+	// ExitLiteralBoolean is called when exiting the LiteralBoolean production.
+	ExitLiteralBoolean(c *LiteralBooleanContext)
+
+	// ExitLiteralTemporal is called when exiting the LiteralTemporal production.
+	ExitLiteralTemporal(c *LiteralTemporalContext)
 
 	// ExitPropertyName is called when exiting the propertyName production.
 	ExitPropertyName(c *PropertyNameContext)

@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://access.crunchydata.com/documentation/pg_tileserv/latest/"><img width="180" height="180" src="./hugo/static/crunchy-spatial-logo.png?raw=true" /></a>
+  <a href="https://access.crunchydata.com/documentation/pg_featureserv/latest/"><img width="180" height="180" src="./hugo/static/crunchy-spatial-logo.png?raw=true" /></a>
 </p>
 
 # pg_featureserv
@@ -84,7 +84,7 @@ Without `go` installed, you can build `pg_featureserv` in a docker image:
   ```
 
 * This creates a `pg_featureserv` executable in the application directory
-* (Optional) Run the unit tests using `make test`
+* (Optional) Run the unit tests using `go test`
 
 ### Docker image of `pg_featureserv`
 

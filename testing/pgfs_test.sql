@@ -28,6 +28,27 @@ SELECT ROW_NUMBER() OVER () AS id,
   FROM generate_series(0, 9) AS x(x)
   CROSS JOIN generate_series(0, 9) AS y(y);
 
+--=====================================================================
+
+CREATE TABLE pgfs_test.test_srid0
+(
+    id integer primary key,
+    geom geometry(polygon, 0),
+    name text
+);
+
+-- DROP TABLE pgfs_test.test_srid0;
+-- DELETE FROM pgfs_test.test_srid0;
+
+INSERT INTO pgfs_test.test_srid0
+SELECT ROW_NUMBER() OVER () AS id,
+        ST_MakeEnvelope(1.0 + 2 * x, 4.0 + 2 * y,
+                        1.0 + 2 * (x + 1), 4.0 + 2 * (y + 1),
+            0) AS geom,
+        x || '_' || y AS name
+  FROM generate_series(0, 9) AS x(x)
+  CROSS JOIN generate_series(0, 9) AS y(y);
+
 
 --=====================================================================
 
@@ -44,6 +65,24 @@ INSERT INTO pgfs_test.test_json
 VALUES
   (1, 'SRID=4326;POINT(1 1)', '["a", "b", "c"]'),
   (2, 'SRID=4326;POINT(2 2)', '{"p1": 1, "p2": 2.3, "p3": [1, 2, 3]}');
+
+--=====================================================================
+
+-- Test a table with mixed geometry types
+
+CREATE TABLE pgfs_test.test_geom
+(
+    id integer primary key,
+    geom geometry(Geometry, 4326),
+    data text
+);
+
+-- DROP TABLE pgfs_test.test_json;
+
+INSERT INTO pgfs_test.test_geom
+VALUES
+  (1, 'SRID=4326;POINT(1 1)', 'aaa'),
+  (2, 'SRID=4326;LINESTRING(1 1, 2 2)', 'bbb');
 
 --=====================================================================
 CREATE TABLE pgfs_test.test_arr
