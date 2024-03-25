@@ -519,6 +519,17 @@ func NewCollectionsInfo(tables []*data.Table) *CollectionsInfo {
 	return &csDoc
 }
 
+func NewCollectionsInfoFilter(tables []*data.Table, schema string) *CollectionsInfo {
+	csDoc := CollectionsInfo{Links: []*Link{}, Collections: []*CollectionInfo{}}
+	for _, lyr := range tables {
+		if lyr.Schema == schema {
+			collDoc := NewCollectionInfo(lyr)
+			csDoc.Collections = append(csDoc.Collections, collDoc)
+		}
+	}
+	return &csDoc
+}
+
 func NewCollectionInfo(tbl *data.Table) *CollectionInfo {
 	doc := CollectionInfo{
 		Name:        tbl.ID,

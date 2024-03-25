@@ -70,6 +70,38 @@ func initRouter(basePath string) *mux.Router {
 	addRoute(router, "/functions/{id}/items", handleFunctionItems)
 	addRoute(router, "/functions/{id}/items.{fmt}", handleFunctionItems)
 
+	addRoute(router, "/schema/{schema}/", handleRootFilter)
+	addRoute(router, "/schema/{schema}/home{.fmt}", handleRootFilter)
+	// consistent with pg_tileserv
+	addRoute(router, "/schema/{schema}/index{.fmt}", handleRootFilter)
+
+	addRoute(router, "/schema/{schema}/api", handleAPI)
+	addRoute(router, "/schema/{schema}/api.{fmt}", handleAPI)
+
+	addRoute(router, "/schema/{schema}/conformance", handleConformance)
+	addRoute(router, "/schema/{schema}/conformance.{fmt}", handleConformance)
+
+	addRoute(router, "/schema/{schema}/collections", handleCollectionsFilter)
+	addRoute(router, "/schema/{schema}/collections.{fmt}", handleCollections)
+
+	addRoute(router, "/schema/{schema}/collections/{id}", handleCollection)
+	addRoute(router, "/schema/{schema}/collections/{id}.{fmt}", handleCollection)
+
+	addRoute(router, "/schema/{schema}/collections/{id}/items", handleCollectionItems)
+	addRoute(router, "/schema/{schema}/collections/{id}/items.{fmt}", handleCollectionItems)
+
+	addRoute(router, "/schema/{schema}/collections/{id}/items/{fid}", handleItem)
+	addRoute(router, "/schema/{schema}/collections/{id}/items/{fid}.{fmt}", handleItem)
+
+	addRoute(router, "/schema/{schema}/functions", handleFunctions)
+	addRoute(router, "/schema/{schema}/functions.{fmt}", handleFunctions)
+
+	addRoute(router, "/schema/{schema}/functions/{id}", handleFunction)
+	addRoute(router, "/schema/{schema}/functions/{id}.{fmt}", handleFunction)
+
+	addRoute(router, "/schema/{schema}/functions/{id}/items", handleFunctionItems)
+	addRoute(router, "/schema/{schema}/functions/{id}/items.{fmt}", handleFunctionItems)
+
 	return router
 }
 
@@ -82,14 +114,45 @@ func handleRootJSON(w http.ResponseWriter, r *http.Request) *appError {
 	return doRoot(w, r, api.FormatJSON)
 }
 
+func handleRootFilterJSON(w http.ResponseWriter, r *http.Request) *appError {
+	schema := mux.Vars(r)["schema"]
+	return doRootFilter(w, r, api.FormatJSON, schema)
+}
+
 func handleRoot(w http.ResponseWriter, r *http.Request) *appError {
 	format := api.RequestedFormat(r)
 	return doRoot(w, r, format)
 }
 
+func handleRootFilter(w http.ResponseWriter, r *http.Request) *appError {
+	schema := mux.Vars(r)["schema"]
+	format := api.RequestedFormat(r)
+	return doRootFilter(w, r, format, schema)
+}
+
 func doRoot(w http.ResponseWriter, r *http.Request, format string) *appError {
 	//log.Printf("Content-Type: %v  Accept: %v", r.Header.Get("Content-Type"), r.Header.Get("Accept"))
 	urlBase := serveURLBase(r)
+
+	// --- create content
+	content := api.NewRootInfo(&conf.Configuration)
+
+	switch format {
+	case api.FormatHTML:
+		context := ui.NewPageData()
+		context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML)
+		context.URLJSON = urlPathFormat(urlBase, api.RootPageName, api.FormatJSON)
+
+		return writeHTML(w, content, context, ui.PageHome())
+	default:
+		content.Links = linksRoot(urlBase)
+		return writeJSON(w, api.ContentTypeJSON, content)
+	}
+}
+
+func doRootFilter(w http.ResponseWriter, r *http.Request, format string, schema string) *appError {
+	//log.Printf("Content-Type: %v  Accept: %v", r.Header.Get("Content-Type"), r.Header.Get("Accept"))
+	urlBase := serveURLBase(r) + "schema/" + schema + "/"
 
 	// --- create content
 	content := api.NewRootInfo(&conf.Configuration)
@@ -154,6 +217,38 @@ func handleCollections(w http.ResponseWriter, r *http.Request) *appError {
 	}
 
 	content := api.NewCollectionsInfo(colls)
+	for _, coll := range content.Collections {
+		switch format {
+		case api.FormatHTML:
+			addCollectionURLs(coll, urlBase)
+		default:
+			coll.Links = linksCollection(coll.Name, urlBase, true)
+		}
+	}
+
+	switch format {
+	case api.FormatHTML:
+		context := ui.NewPageData()
+		context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML)
+		context.URLJSON = urlPathFormat(urlBase, api.TagCollections, api.FormatJSON)
+
+		return writeHTML(w, content, context, ui.PageCollections())
+	default:
+		content.Links = linksCollections(urlBase)
+		return writeJSON(w, api.ContentTypeJSON, content)
+	}
+}
+
+func handleCollectionsFilter(w http.ResponseWriter, r *http.Request) *appError {
+	format := api.RequestedFormat(r)
+	urlBase := serveURLBase(r)
+	schema := mux.Vars(r)["schema"]
+	colls, err := catalogInstance.Tables()
+	if err != nil {
+		return appErrorInternal(err, api.ErrMsgLoadCollections)
+	}
+
+	content := api.NewCollectionsInfoFilter(colls, schema)
 	for _, coll := range content.Collections {
 		switch format {
 		case api.FormatHTML:
