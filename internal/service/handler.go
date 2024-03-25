@@ -82,7 +82,7 @@ func initRouter(basePath string) *mux.Router {
 	addRoute(router, "/schema/{schema}/conformance.{fmt}", handleConformance)
 
 	addRoute(router, "/schema/{schema}/collections", handleCollectionsFilter)
-	addRoute(router, "/schema/{schema}/collections.{fmt}", handleCollections)
+	addRoute(router, "/schema/{schema}/collections.{fmt}", handleCollectionsFilter)
 
 	addRoute(router, "/schema/{schema}/collections/{id}", handleCollection)
 	addRoute(router, "/schema/{schema}/collections/{id}.{fmt}", handleCollection)
@@ -92,15 +92,6 @@ func initRouter(basePath string) *mux.Router {
 
 	addRoute(router, "/schema/{schema}/collections/{id}/items/{fid}", handleItem)
 	addRoute(router, "/schema/{schema}/collections/{id}/items/{fid}.{fmt}", handleItem)
-
-	addRoute(router, "/schema/{schema}/functions", handleFunctions)
-	addRoute(router, "/schema/{schema}/functions.{fmt}", handleFunctions)
-
-	addRoute(router, "/schema/{schema}/functions/{id}", handleFunction)
-	addRoute(router, "/schema/{schema}/functions/{id}.{fmt}", handleFunction)
-
-	addRoute(router, "/schema/{schema}/functions/{id}/items", handleFunctionItems)
-	addRoute(router, "/schema/{schema}/functions/{id}/items.{fmt}", handleFunctionItems)
 
 	return router
 }
