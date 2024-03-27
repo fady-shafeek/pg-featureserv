@@ -1,9 +1,19 @@
 version: '3.8'
 
 services:
-  go-app:
+  pg-featureserv:
+    restart: always
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "9000:9000"
+
+  db:
+    image: kartoza/postgis:14-3
+    container_name: pg-featureserv-db
+    ports:
+      - "9001:5432"
+    restart: always
+    env_file:
+      - .env
