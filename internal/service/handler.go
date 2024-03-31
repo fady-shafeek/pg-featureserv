@@ -124,7 +124,7 @@ func handleRootFilter(w http.ResponseWriter, r *http.Request) *appError {
 func doRoot(w http.ResponseWriter, r *http.Request, format string) *appError {
 	//log.Printf("Content-Type: %v  Accept: %v", r.Header.Get("Content-Type"), r.Header.Get("Accept"))
 	urlBase := serveURLBase(r)
-
+	accessToken := r.URL.Query().Get("access_token")
 	// --- create content
 	content := api.NewRootInfo(&conf.Configuration)
 
@@ -136,7 +136,7 @@ func doRoot(w http.ResponseWriter, r *http.Request, format string) *appError {
 
 		return writeHTML(w, content, context, ui.PageHome())
 	default:
-		content.Links = linksRoot(urlBase)
+		content.Links = linksRoot(urlBase, accessToken)
 		return writeJSON(w, api.ContentTypeJSON, content)
 	}
 }
@@ -144,6 +144,7 @@ func doRoot(w http.ResponseWriter, r *http.Request, format string) *appError {
 func doRootFilter(w http.ResponseWriter, r *http.Request, format string, schema string) *appError {
 	//log.Printf("Content-Type: %v  Accept: %v", r.Header.Get("Content-Type"), r.Header.Get("Accept"))
 	urlBase := serveURLBase(r) + "schema/" + schema + "/"
+	accessToken := r.URL.Query().Get("access_token")
 
 	// --- create content
 	content := api.NewRootInfo(&conf.Configuration)
@@ -156,12 +157,12 @@ func doRootFilter(w http.ResponseWriter, r *http.Request, format string, schema 
 
 		return writeHTML(w, content, context, ui.PageHome())
 	default:
-		content.Links = linksRoot(urlBase)
+		content.Links = linksRoot(urlBase, accessToken)
 		return writeJSON(w, api.ContentTypeJSON, content)
 	}
 }
 
-func linksRoot(urlBase string) []*api.Link {
+func linksRoot(urlBase string, accessToken string) []*api.Link {
 	var links []*api.Link
 	links = append(links, linkSelf(urlBase, api.RootPageName, api.TitleDocument))
 	links = append(links, linkAlt(urlBase, api.RootPageName, api.TitleDocument))
@@ -178,7 +179,13 @@ func linksRoot(urlBase string) []*api.Link {
 	links = append(links, &api.Link{
 		Href: urlPath(urlBase, api.TagFunctions),
 		Rel:  api.RelFunctions, Type: api.ContentTypeJSON, Title: "functions"})
-
+	// If access_token is provided, include it in the links
+	if accessToken != "" {
+		for _, link := range links {
+			// Append access_token query parameter to each link's Href
+			link.Href += "?access_token=" + accessToken
+		}
+	}
 	return links
 }
 
