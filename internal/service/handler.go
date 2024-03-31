@@ -180,12 +180,12 @@ func linksRoot(urlBase string, accessToken string) []*api.Link {
 		Href: urlPath(urlBase, api.TagFunctions, accessToken),
 		Rel:  api.RelFunctions, Type: api.ContentTypeJSON, Title: "functions"})
 	// If access_token is provided, include it in the links
-	if accessToken != "" {
-		for _, link := range links {
-			// Append access_token query parameter to each link's Href
-			link.Href += "?access_token=" + accessToken
-		}
-	}
+	// if accessToken != "" {
+	// 	for _, link := range links {
+	// 		// Append access_token query parameter to each link's Href
+	// 		link.Href += "?access_token=" + accessToken
+	// 	}
+	// }
 	return links
 }
 

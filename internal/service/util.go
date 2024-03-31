@@ -200,13 +200,13 @@ func urlPathFormat(urlBase string, path string, format string, accessToken strin
 	if path == "" {
 		pathFormat = ""
 		if format == api.FormatHTML {
-			pathFormat = api.RootPageName + ".html" + "/?access_token=" + accessToken
+			pathFormat = api.RootPageName + ".html"
 		}
 	} else {
-		pathFormat = path + "." + format + "/?access_token=" + accessToken
+		pathFormat = path + "." + format
 	}
 	url := fmt.Sprintf("%v%v", urlBase, pathFormat)
-	return url
+	return url + "/?access_token=" + accessToken
 }
 
 func urlPathFormatQuery(urlBase string, path string, format string, query string, accessToken string) string {
