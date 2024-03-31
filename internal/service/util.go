@@ -189,28 +189,28 @@ func getRequestVar(varname string, r *http.Request) string {
 }
 
 // urlPathFormat provides a URL for the given base and path
-func urlPath(urlBase string, path string) string {
+func urlPath(urlBase string, path string, accessToken string) string {
 	url := fmt.Sprintf("%v%v", urlBase, path)
-	return url
+	return url + "/?access_token=" + accessToken
 }
 
 // urlPathFormat provides a URL for the given base, path and format
-func urlPathFormat(urlBase string, path string, format string) string {
+func urlPathFormat(urlBase string, path string, format string, accessToken string) string {
 	var pathFormat string
 	if path == "" {
 		pathFormat = ""
 		if format == api.FormatHTML {
-			pathFormat = api.RootPageName + ".html"
+			pathFormat = api.RootPageName + ".html" + "/?access_token=" + accessToken
 		}
 	} else {
-		pathFormat = path + "." + format
+		pathFormat = path + "." + format + "/?access_token=" + accessToken
 	}
 	url := fmt.Sprintf("%v%v", urlBase, pathFormat)
 	return url
 }
 
-func urlPathFormatQuery(urlBase string, path string, format string, query string) string {
-	url := urlPathFormat(urlBase, path, format)
+func urlPathFormatQuery(urlBase string, path string, format string, query string, accessToken string) string {
+	url := urlPathFormat(urlBase, path, format, accessToken)
 	if query != "" {
 		url = fmt.Sprintf("%v?%v", url, query)
 	}
@@ -249,6 +249,7 @@ func restrict(inMap map[string]string, names []string) map[string]string {
 }
 
 // removeNames removes a list of names from a map (map is modified)
+//
 //nolint:unused
 func removeNames(inMap map[string]string, names []string) {
 	for _, name := range names {
@@ -293,6 +294,7 @@ func writeResponse(w http.ResponseWriter, contype string, encodedContent []byte)
 }
 
 // Sets response 'status', and writes a json-encoded object with property "description" having value "msg".
+//
 //nolint:all
 func writeError(w http.ResponseWriter, code string, msg string, status int) {
 	w.WriteHeader(status)

@@ -131,8 +131,8 @@ func doRoot(w http.ResponseWriter, r *http.Request, format string) *appError {
 	switch format {
 	case api.FormatHTML:
 		context := ui.NewPageData()
-		context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML)
-		context.URLJSON = urlPathFormat(urlBase, api.RootPageName, api.FormatJSON)
+		context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML, accessToken)
+		context.URLJSON = urlPathFormat(urlBase, api.RootPageName, api.FormatJSON, accessToken)
 
 		return writeHTML(w, content, context, ui.PageHome())
 	default:
@@ -152,8 +152,8 @@ func doRootFilter(w http.ResponseWriter, r *http.Request, format string, schema 
 	switch format {
 	case api.FormatHTML:
 		context := ui.NewPageData()
-		context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML)
-		context.URLJSON = urlPathFormat(urlBase, api.RootPageName, api.FormatJSON)
+		context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML, accessToken)
+		context.URLJSON = urlPathFormat(urlBase, api.RootPageName, api.FormatJSON, accessToken)
 
 		return writeHTML(w, content, context, ui.PageHome())
 	default:
@@ -164,20 +164,20 @@ func doRootFilter(w http.ResponseWriter, r *http.Request, format string, schema 
 
 func linksRoot(urlBase string, accessToken string) []*api.Link {
 	var links []*api.Link
-	links = append(links, linkSelf(urlBase, api.RootPageName, api.TitleDocument))
-	links = append(links, linkAlt(urlBase, api.RootPageName, api.TitleDocument))
+	links = append(links, linkSelf(urlBase, api.RootPageName, api.TitleDocument, accessToken))
+	links = append(links, linkAlt(urlBase, api.RootPageName, api.TitleDocument, accessToken))
 
 	links = append(links, &api.Link{
-		Href: urlPath(urlBase, api.TagAPI),
+		Href: urlPath(urlBase, api.TagAPI, accessToken),
 		Rel:  api.RelServiceDesc, Type: api.ContentTypeOpenAPI, Title: "API definition"})
 	links = append(links, &api.Link{
-		Href: urlPath(urlBase, api.TagConformance),
+		Href: urlPath(urlBase, api.TagConformance, accessToken),
 		Rel:  api.RelConformance, Type: api.ContentTypeJSON, Title: "OGC API conformance classes implemented by this server"})
 	links = append(links, &api.Link{
-		Href: urlPath(urlBase, api.TagCollections),
+		Href: urlPath(urlBase, api.TagCollections, accessToken),
 		Rel:  api.RelData, Type: api.ContentTypeJSON, Title: "collections"})
 	links = append(links, &api.Link{
-		Href: urlPath(urlBase, api.TagFunctions),
+		Href: urlPath(urlBase, api.TagFunctions, accessToken),
 		Rel:  api.RelFunctions, Type: api.ContentTypeJSON, Title: "functions"})
 	// If access_token is provided, include it in the links
 	if accessToken != "" {
@@ -189,17 +189,17 @@ func linksRoot(urlBase string, accessToken string) []*api.Link {
 	return links
 }
 
-func linkSelf(urlBase string, path string, desc string) *api.Link {
+func linkSelf(urlBase string, path string, desc string, accessToken string) *api.Link {
 	return &api.Link{
-		Href:  urlPath(urlBase, path),
+		Href:  urlPath(urlBase, path, accessToken),
 		Rel:   api.RelSelf,
 		Type:  api.ContentTypeJSON,
 		Title: desc + api.TitleAsJSON}
 }
 
-func linkAlt(urlBase string, path string, desc string) *api.Link {
+func linkAlt(urlBase string, path string, desc string, accessToken string) *api.Link {
 	return &api.Link{
-		Href:  urlPathFormat(urlBase, path, api.FormatHTML),
+		Href:  urlPathFormat(urlBase, path, api.FormatHTML, accessToken),
 		Rel:   api.RelAlt,
 		Type:  api.ContentTypeHTML,
 		Title: desc + api.TitleAsHTML}
@@ -208,6 +208,7 @@ func linkAlt(urlBase string, path string, desc string) *api.Link {
 func handleCollections(w http.ResponseWriter, r *http.Request) *appError {
 	format := api.RequestedFormat(r)
 	urlBase := serveURLBase(r)
+	accessToken := r.URL.Query().Get("access_token")
 
 	colls, err := catalogInstance.Tables()
 	if err != nil {
@@ -218,21 +219,21 @@ func handleCollections(w http.ResponseWriter, r *http.Request) *appError {
 	for _, coll := range content.Collections {
 		switch format {
 		case api.FormatHTML:
-			addCollectionURLs(coll, urlBase)
+			addCollectionURLs(coll, urlBase, accessToken)
 		default:
-			coll.Links = linksCollection(coll.Name, urlBase, true)
+			coll.Links = linksCollection(coll.Name, urlBase, true, accessToken)
 		}
 	}
 
 	switch format {
 	case api.FormatHTML:
 		context := ui.NewPageData()
-		context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML)
-		context.URLJSON = urlPathFormat(urlBase, api.TagCollections, api.FormatJSON)
+		context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML, accessToken)
+		context.URLJSON = urlPathFormat(urlBase, api.TagCollections, api.FormatJSON, accessToken)
 
 		return writeHTML(w, content, context, ui.PageCollections())
 	default:
-		content.Links = linksCollections(urlBase)
+		content.Links = linksCollections(urlBase, accessToken)
 		return writeJSON(w, api.ContentTypeJSON, content)
 	}
 }
@@ -241,6 +242,7 @@ func handleCollectionsFilter(w http.ResponseWriter, r *http.Request) *appError {
 	format := api.RequestedFormat(r)
 	urlBase := serveURLBase(r)
 	schema := mux.Vars(r)["schema"]
+	accessToken := r.URL.Query().Get("access_token")
 	colls, err := catalogInstance.Tables()
 	if err != nil {
 		return appErrorInternal(err, api.ErrMsgLoadCollections)
@@ -250,44 +252,44 @@ func handleCollectionsFilter(w http.ResponseWriter, r *http.Request) *appError {
 	for _, coll := range content.Collections {
 		switch format {
 		case api.FormatHTML:
-			addCollectionURLs(coll, urlBase)
+			addCollectionURLs(coll, urlBase, accessToken)
 		default:
-			coll.Links = linksCollection(coll.Name, urlBase, true)
+			coll.Links = linksCollection(coll.Name, urlBase, true, accessToken)
 		}
 	}
 
 	switch format {
 	case api.FormatHTML:
 		context := ui.NewPageData()
-		context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML)
-		context.URLJSON = urlPathFormat(urlBase, api.TagCollections, api.FormatJSON)
+		context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML, accessToken)
+		context.URLJSON = urlPathFormat(urlBase, api.TagCollections, api.FormatJSON, accessToken)
 
 		return writeHTML(w, content, context, ui.PageCollections())
 	default:
-		content.Links = linksCollections(urlBase)
+		content.Links = linksCollections(urlBase, accessToken)
 		return writeJSON(w, api.ContentTypeJSON, content)
 	}
 }
 
-func linksCollections(urlBase string) []*api.Link {
+func linksCollections(urlBase string, accessToken string) []*api.Link {
 	var links []*api.Link
-	links = append(links, linkSelf(urlBase, api.TagCollections, api.TitleDocument))
-	links = append(links, linkAlt(urlBase, api.TagCollections, api.TitleDocument))
+	links = append(links, linkSelf(urlBase, api.TagCollections, api.TitleDocument, accessToken))
+	links = append(links, linkAlt(urlBase, api.TagCollections, api.TitleDocument, accessToken))
 	return links
 }
 
-func addCollectionURLs(coll *api.CollectionInfo, urlBase string) {
+func addCollectionURLs(coll *api.CollectionInfo, urlBase string, accessToken string) {
 	name := coll.Name
 	path := api.PathCollection(name)
 	pathItems := api.PathCollectionItems(name)
 
-	coll.URLMetadataJSON = urlPathFormat(urlBase, path, api.FormatJSON)
-	coll.URLMetadataHTML = urlPathFormat(urlBase, path, api.FormatHTML)
-	coll.URLItemsHTML = urlPathFormat(urlBase, pathItems, api.FormatHTML)
-	coll.URLItemsJSON = urlPathFormat(urlBase, pathItems, api.FormatJSON)
+	coll.URLMetadataJSON = urlPathFormat(urlBase, path, api.FormatJSON, accessToken)
+	coll.URLMetadataHTML = urlPathFormat(urlBase, path, api.FormatHTML, accessToken)
+	coll.URLItemsHTML = urlPathFormat(urlBase, pathItems, api.FormatHTML, accessToken)
+	coll.URLItemsJSON = urlPathFormat(urlBase, pathItems, api.FormatJSON, accessToken)
 }
 
-func linksCollection(name string, urlBase string, isSummary bool) []*api.Link {
+func linksCollection(name string, urlBase string, isSummary bool, accessToken string) []*api.Link {
 	path := api.PathCollection(name)
 	pathItems := api.PathCollectionItems(name)
 
@@ -297,10 +299,10 @@ func linksCollection(name string, urlBase string, isSummary bool) []*api.Link {
 	}
 
 	var links []*api.Link
-	links = append(links, linkSelf(urlBase, path, titleDesc))
-	links = append(links, linkAlt(urlBase, path, titleDesc))
+	links = append(links, linkSelf(urlBase, path, titleDesc, accessToken))
+	links = append(links, linkAlt(urlBase, path, titleDesc, accessToken))
 
-	linkItemsJSON := urlPath(urlBase, pathItems)
+	linkItemsJSON := urlPath(urlBase, pathItems, accessToken)
 	links = append(links, &api.Link{
 		Href:  linkItemsJSON,
 		Rel:   api.RelItems,
@@ -313,6 +315,7 @@ func linksCollection(name string, urlBase string, isSummary bool) []*api.Link {
 func handleCollection(w http.ResponseWriter, r *http.Request) *appError {
 	format := api.RequestedFormat(r)
 	urlBase := serveURLBase(r)
+	accessToken := r.URL.Query().Get("access_token")
 
 	name := getRequestVar(routeVarID, r)
 
@@ -330,19 +333,19 @@ func handleCollection(w http.ResponseWriter, r *http.Request) *appError {
 	case api.FormatHTML:
 		pathItems := api.PathCollectionItems(name)
 		context := ui.NewPageData()
-		context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML)
-		context.URLCollections = urlPathFormat(urlBase, api.TagCollections, api.FormatHTML)
-		context.URLCollection = urlPathFormat(urlBase, api.PathCollection(name), api.FormatHTML)
-		context.URLJSON = urlPathFormat(urlBase, api.PathCollection(name), api.FormatJSON)
-		context.URLItems = urlPathFormat(urlBase, pathItems, api.FormatHTML)
-		context.URLItemsJSON = urlPathFormat(urlBase, pathItems, api.FormatJSON)
+		context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML, accessToken)
+		context.URLCollections = urlPathFormat(urlBase, api.TagCollections, api.FormatHTML, accessToken)
+		context.URLCollection = urlPathFormat(urlBase, api.PathCollection(name), api.FormatHTML, accessToken)
+		context.URLJSON = urlPathFormat(urlBase, api.PathCollection(name), api.FormatJSON, accessToken)
+		context.URLItems = urlPathFormat(urlBase, pathItems, api.FormatHTML, accessToken)
+		context.URLItemsJSON = urlPathFormat(urlBase, pathItems, api.FormatJSON, accessToken)
 		context.Title = tbl.Title
 		context.Table = tbl
 		context.IDColumn = tbl.IDColumn
 
 		return writeHTML(w, content, context, ui.PageCollection())
 	default:
-		content.Links = linksCollection(name, urlBase, false)
+		content.Links = linksCollection(name, urlBase, false, accessToken)
 		return writeJSON(w, api.ContentTypeJSON, content)
 	}
 }
@@ -352,6 +355,7 @@ func handleCollectionItems(w http.ResponseWriter, r *http.Request) *appError {
 	format := api.RequestedFormat(r)
 	urlBase := serveURLBase(r)
 	query := api.URLQuery(r.URL)
+	accessToken := r.URL.Query().Get("access_token")
 
 	//--- extract request parameters
 	name := getRequestVar(routeVarID, r)
@@ -376,23 +380,23 @@ func handleCollectionItems(w http.ResponseWriter, r *http.Request) *appError {
 	ctx := r.Context()
 	switch format {
 	case api.FormatJSON:
-		return writeItemsJSON(ctx, w, name, param, urlBase)
+		return writeItemsJSON(ctx, w, name, param, urlBase, accessToken)
 	case api.FormatHTML:
-		return writeItemsHTML(w, tbl, name, query, urlBase)
+		return writeItemsHTML(w, tbl, name, query, urlBase, accessToken)
 	}
 	return nil
 }
 
-func writeItemsHTML(w http.ResponseWriter, tbl *data.Table, name string, query string, urlBase string) *appError {
+func writeItemsHTML(w http.ResponseWriter, tbl *data.Table, name string, query string, urlBase string, accessToken string) *appError {
 
 	pathItems := api.PathCollectionItems(name)
 	// --- encoding
 	context := ui.NewPageData()
-	context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML)
-	context.URLCollections = urlPathFormat(urlBase, api.TagCollections, api.FormatHTML)
-	context.URLCollection = urlPathFormat(urlBase, api.PathCollection(name), api.FormatHTML)
-	context.URLItems = urlPathFormatQuery(urlBase, pathItems, api.FormatHTML, query)
-	context.URLJSON = urlPathFormatQuery(urlBase, pathItems, api.FormatJSON, query)
+	context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML, accessToken)
+	context.URLCollections = urlPathFormat(urlBase, api.TagCollections, api.FormatHTML, accessToken)
+	context.URLCollection = urlPathFormat(urlBase, api.PathCollection(name), api.FormatHTML, accessToken)
+	context.URLItems = urlPathFormatQuery(urlBase, pathItems, api.FormatHTML, query, accessToken)
+	context.URLJSON = urlPathFormatQuery(urlBase, pathItems, api.FormatJSON, query, accessToken)
 	context.Group = "Collections"
 	context.Title = tbl.Title
 	context.IDColumn = tbl.IDColumn
@@ -402,7 +406,7 @@ func writeItemsHTML(w http.ResponseWriter, tbl *data.Table, name string, query s
 	return writeHTML(w, nil, context, ui.PageItems())
 }
 
-func writeItemsJSON(ctx context.Context, w http.ResponseWriter, name string, param *data.QueryParam, urlBase string) *appError {
+func writeItemsJSON(ctx context.Context, w http.ResponseWriter, name string, param *data.QueryParam, urlBase string, accessToken string) *appError {
 	//--- query features data
 	features, err := catalogInstance.TableFeatures(ctx, name, param)
 	if err != nil {
@@ -414,17 +418,17 @@ func writeItemsJSON(ctx context.Context, w http.ResponseWriter, name string, par
 
 	//--- assemble resonse
 	content := api.NewFeatureCollectionInfo(features)
-	content.Links = linksItems(name, urlBase)
+	content.Links = linksItems(name, urlBase, accessToken)
 
 	return writeJSON(w, api.ContentTypeGeoJSON, content)
 }
 
-func linksItems(name string, urlBase string) []*api.Link {
+func linksItems(name string, urlBase string, accessToken string) []*api.Link {
 	path := api.PathCollectionItems(name)
 
 	var links []*api.Link
-	links = append(links, linkSelf(urlBase, path, api.TitleDocument))
-	links = append(links, linkAlt(urlBase, path, api.TitleDocument))
+	links = append(links, linkSelf(urlBase, path, api.TitleDocument, accessToken))
+	links = append(links, linkAlt(urlBase, path, api.TitleDocument, accessToken))
 
 	return links
 }
@@ -433,7 +437,7 @@ func handleItem(w http.ResponseWriter, r *http.Request) *appError {
 	// TODO: determine content from request header?
 	format := api.RequestedFormat(r)
 	urlBase := serveURLBase(r)
-
+	accessToken := r.URL.Query().Get("access_token")
 	query := api.URLQuery(r.URL)
 	//--- extract request parameters
 	name := getRequestVar(routeVarID, r)
@@ -458,7 +462,7 @@ func handleItem(w http.ResponseWriter, r *http.Request) *appError {
 		case api.FormatJSON:
 			return writeItemJSON(ctx, w, name, fid, param, urlBase)
 		case api.FormatHTML:
-			return writeItemHTML(w, tbl, name, fid, query, urlBase)
+			return writeItemHTML(w, tbl, name, fid, query, urlBase, accessToken)
 		default:
 			return nil
 		}
@@ -467,17 +471,17 @@ func handleItem(w http.ResponseWriter, r *http.Request) *appError {
 	}
 }
 
-func writeItemHTML(w http.ResponseWriter, tbl *data.Table, name string, fid string, query string, urlBase string) *appError {
+func writeItemHTML(w http.ResponseWriter, tbl *data.Table, name string, fid string, query string, urlBase string, accessToken string) *appError {
 	//--- query data for request
 
 	pathItems := api.PathCollectionItems(name)
 	// --- encoding
 	context := ui.NewPageData()
-	context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML)
-	context.URLCollections = urlPathFormat(urlBase, api.TagCollections, api.FormatHTML)
-	context.URLCollection = urlPathFormat(urlBase, api.PathCollection(name), api.FormatHTML)
-	context.URLItems = urlPathFormat(urlBase, pathItems, api.FormatHTML)
-	context.URLJSON = urlPathFormatQuery(urlBase, api.PathItem(name, fid), api.FormatJSON, query)
+	context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML, accessToken)
+	context.URLCollections = urlPathFormat(urlBase, api.TagCollections, api.FormatHTML, accessToken)
+	context.URLCollection = urlPathFormat(urlBase, api.PathCollection(name), api.FormatHTML, accessToken)
+	context.URLItems = urlPathFormat(urlBase, pathItems, api.FormatHTML, accessToken)
+	context.URLJSON = urlPathFormatQuery(urlBase, api.PathItem(name, fid), api.FormatJSON, query, accessToken)
 	context.Group = "Collections"
 	context.Title = tbl.Title
 	context.FeatureID = fid
@@ -510,14 +514,14 @@ func handleConformance(w http.ResponseWriter, r *http.Request) *appError {
 	// TODO: determine content from request header?
 	format := api.RequestedFormat(r)
 	urlBase := serveURLBase(r)
-
+	accessToken := r.URL.Query().Get("access_token")
 	content := api.GetConformance()
 
 	switch format {
 	case api.FormatHTML:
 		context := ui.NewPageData()
-		context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML)
-		context.URLJSON = urlPathFormat(urlBase, api.TagConformance, api.FormatJSON)
+		context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML, accessToken)
+		context.URLJSON = urlPathFormat(urlBase, api.TagConformance, api.FormatJSON, accessToken)
 
 		return writeHTML(w, content, context, ui.PageConformance())
 	default:
@@ -529,14 +533,14 @@ func handleAPI(w http.ResponseWriter, r *http.Request) *appError {
 	// TODO: determine content from request header?
 	format := api.RequestedFormat(r)
 	urlBase := serveURLBase(r)
-
+	accessToken := r.URL.Query().Get("access_token")
 	content := api.GetOpenAPIContent(urlBase)
 
 	switch format {
 	case api.FormatHTML:
 		context := ui.NewPageData()
-		context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML)
-		context.URLJSON = urlPathFormat(urlBase, api.TagAPI, api.FormatJSON)
+		context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML, accessToken)
+		context.URLJSON = urlPathFormat(urlBase, api.TagAPI, api.FormatJSON, accessToken)
 
 		return writeHTML(w, content, context, ui.PageAPI())
 	default:
@@ -547,6 +551,7 @@ func handleAPI(w http.ResponseWriter, r *http.Request) *appError {
 func handleFunctions(w http.ResponseWriter, r *http.Request) *appError {
 	format := api.RequestedFormat(r)
 	urlBase := serveURLBase(r)
+	accessToken := r.URL.Query().Get("access_token")
 
 	fns, err := catalogInstance.Functions()
 	if err != nil {
@@ -557,41 +562,41 @@ func handleFunctions(w http.ResponseWriter, r *http.Request) *appError {
 		isGeomFun := fn.Function.IsGeometryFunction()
 		switch format {
 		case api.FormatHTML:
-			addFunctionURLs(fn, urlBase, isGeomFun)
+			addFunctionURLs(fn, urlBase, isGeomFun, accessToken)
 		default:
-			fn.Links = linksFunction(fn.Function.ID, urlBase, true, isGeomFun)
+			fn.Links = linksFunction(fn.Function.ID, urlBase, true, isGeomFun, accessToken)
 		}
 	}
 
 	switch format {
 	case api.FormatHTML:
 		context := ui.NewPageData()
-		context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML)
-		context.URLJSON = urlPathFormat(urlBase, api.TagFunctions, api.FormatJSON)
+		context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML, accessToken)
+		context.URLJSON = urlPathFormat(urlBase, api.TagFunctions, api.FormatJSON, accessToken)
 
 		return writeHTML(w, content, context, ui.PageFunctions())
 	default:
-		content.Links = linksFunctions(urlBase)
+		content.Links = linksFunctions(urlBase, accessToken)
 		return writeJSON(w, api.ContentTypeJSON, content)
 	}
 }
 
-func linksFunctions(urlBase string) []*api.Link {
+func linksFunctions(urlBase string, accessToken string) []*api.Link {
 	var links []*api.Link
-	links = append(links, linkSelf(urlBase, api.TagFunctions, api.TitleDocument))
-	links = append(links, linkAlt(urlBase, api.TagFunctions, api.TitleDocument))
+	links = append(links, linkSelf(urlBase, api.TagFunctions, api.TitleDocument, accessToken))
+	links = append(links, linkAlt(urlBase, api.TagFunctions, api.TitleDocument, accessToken))
 	return links
 }
 
-func addFunctionURLs(content *api.FunctionSummary, urlBase string, isGeomFun bool) {
+func addFunctionURLs(content *api.FunctionSummary, urlBase string, isGeomFun bool, accessToken string) {
 	name := content.Name
 	path := api.PathFunction(name)
 	pathItems := api.PathFunctionItems(name)
-	content.URLMetadataJSON = urlPathFormat(urlBase, path, api.FormatJSON)
-	content.URLMetadataHTML = urlPathFormat(urlBase, path, api.FormatHTML)
+	content.URLMetadataJSON = urlPathFormat(urlBase, path, api.FormatJSON, accessToken)
+	content.URLMetadataHTML = urlPathFormat(urlBase, path, api.FormatHTML, accessToken)
 	// there is no HTML view for non-spatial (for now)
-	content.URLItemsHTML = urlIfExists(isGeomFun, urlPathFormat(urlBase, pathItems, api.FormatHTML))
-	content.URLItemsJSON = urlPathFormat(urlBase, pathItems, api.FormatJSON)
+	content.URLItemsHTML = urlIfExists(isGeomFun, urlPathFormat(urlBase, pathItems, api.FormatHTML, accessToken))
+	content.URLItemsJSON = urlPathFormat(urlBase, pathItems, api.FormatJSON, accessToken)
 }
 
 // urlIfExists returns the url, or blank if the document does not exist
@@ -602,7 +607,7 @@ func urlIfExists(isExists bool, url string) string {
 	return ""
 }
 
-func linksFunction(id string, urlBase string, isSummary bool, isGeomFun bool) []*api.Link {
+func linksFunction(id string, urlBase string, isSummary bool, isGeomFun bool, accessToken string) []*api.Link {
 	path := api.PathFunction(id)
 	pathItems := api.PathFunctionItems(id)
 
@@ -612,8 +617,8 @@ func linksFunction(id string, urlBase string, isSummary bool, isGeomFun bool) []
 	}
 
 	var links []*api.Link
-	links = append(links, linkSelf(urlBase, path, titleDesc))
-	links = append(links, linkAlt(urlBase, path, titleDesc))
+	links = append(links, linkSelf(urlBase, path, titleDesc, accessToken))
+	links = append(links, linkAlt(urlBase, path, titleDesc, accessToken))
 
 	dataTitle := api.TitleDataJSON
 	conType := api.ContentTypeJSON
@@ -623,7 +628,7 @@ func linksFunction(id string, urlBase string, isSummary bool, isGeomFun bool) []
 	}
 
 	links = append(links, &api.Link{
-		Href:  urlPath(urlBase, pathItems),
+		Href:  urlPath(urlBase, pathItems, accessToken),
 		Rel:   "items",
 		Type:  conType,
 		Title: dataTitle})
@@ -633,7 +638,7 @@ func linksFunction(id string, urlBase string, isSummary bool, isGeomFun bool) []
 func handleFunction(w http.ResponseWriter, r *http.Request) *appError {
 	format := api.RequestedFormat(r)
 	urlBase := serveURLBase(r)
-
+	accessToken := r.URL.Query().Get("access_token")
 	shortName := getRequestVar(routeVarID, r)
 	name := data.FunctionQualifiedId(shortName)
 
@@ -651,19 +656,19 @@ func handleFunction(w http.ResponseWriter, r *http.Request) *appError {
 	case api.FormatHTML:
 		pathItems := api.PathFunctionItems(shortName)
 		context := ui.NewPageData()
-		context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML)
-		context.URLFunctions = urlPathFormat(urlBase, api.TagFunctions, api.FormatHTML)
-		context.URLFunction = urlPathFormat(urlBase, api.PathFunction(name), api.FormatHTML)
-		context.URLJSON = urlPathFormat(urlBase, api.PathFunction(name), api.FormatJSON)
+		context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML, accessToken)
+		context.URLFunctions = urlPathFormat(urlBase, api.TagFunctions, api.FormatHTML, accessToken)
+		context.URLFunction = urlPathFormat(urlBase, api.PathFunction(name), api.FormatHTML, accessToken)
+		context.URLJSON = urlPathFormat(urlBase, api.PathFunction(name), api.FormatJSON, accessToken)
 		// there is no HTML view for non-spatial (for now)
-		context.URLItems = urlIfExists(isGeomFun, urlPathFormat(urlBase, pathItems, api.FormatHTML))
-		context.URLItemsJSON = urlPathFormat(urlBase, pathItems, api.FormatJSON)
+		context.URLItems = urlIfExists(isGeomFun, urlPathFormat(urlBase, pathItems, api.FormatHTML, accessToken))
+		context.URLItemsJSON = urlPathFormat(urlBase, pathItems, api.FormatJSON, accessToken)
 		context.Title = fn.ID
 		context.Function = fn
 
 		return writeHTML(w, content, context, ui.PageFunction())
 	default:
-		content.Links = linksFunction(shortName, urlBase, false, isGeomFun)
+		content.Links = linksFunction(shortName, urlBase, false, isGeomFun, accessToken)
 
 		return writeJSON(w, api.ContentTypeJSON, content)
 	}
@@ -673,7 +678,7 @@ func handleFunctionItems(w http.ResponseWriter, r *http.Request) *appError {
 	// TODO: determine content from request header?
 	format := api.RequestedFormat(r)
 	urlBase := serveURLBase(r)
-
+	accessToken := r.URL.Query().Get("access_token")
 	//--- extract request parameters
 	name := data.FunctionQualifiedId(getRequestVar(routeVarID, r))
 	reqParam, err := parseRequestParams(r)
@@ -697,11 +702,11 @@ func handleFunctionItems(w http.ResponseWriter, r *http.Request) *appError {
 	switch format {
 	case api.FormatJSON:
 		if fn.IsGeometryFunction() {
-			return writeFunItemsGeoJSON(ctx, w, name, fnArgs, param, urlBase)
+			return writeFunItemsGeoJSON(ctx, w, name, fnArgs, param, urlBase, accessToken)
 		}
 		return writeFunItemsJSON(ctx, w, name, fnArgs, param)
 	case api.FormatHTML:
-		return writeFunItemsHTML(w, name, query, urlBase)
+		return writeFunItemsHTML(w, name, query, urlBase, accessToken)
 	case api.FormatText:
 		return writeFunItemsText(ctx, w, api.ContentTypeText, name, fnArgs, param)
 	case api.FormatSVG:
@@ -710,7 +715,7 @@ func handleFunctionItems(w http.ResponseWriter, r *http.Request) *appError {
 	return nil
 }
 
-func writeFunItemsHTML(w http.ResponseWriter, name string, query string, urlBase string) *appError {
+func writeFunItemsHTML(w http.ResponseWriter, name string, query string, urlBase string, accessToken string) *appError {
 	fn, err1 := catalogInstance.FunctionByName(name)
 	if err1 != nil {
 		return appErrorInternalFmt(err1, api.ErrMsgFunctionAccess, name)
@@ -721,11 +726,11 @@ func writeFunItemsHTML(w http.ResponseWriter, name string, query string, urlBase
 	pathItems := api.PathFunctionItems(name)
 	// --- encoding
 	context := ui.NewPageData()
-	context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML)
-	context.URLCollections = urlPathFormat(urlBase, api.TagFunctions, api.FormatHTML)
-	context.URLCollection = urlPathFormat(urlBase, api.PathFunction(name), api.FormatHTML)
-	context.URLItems = urlPathFormatQuery(urlBase, pathItems, api.FormatHTML, query)
-	context.URLJSON = urlPathFormatQuery(urlBase, pathItems, api.FormatJSON, query)
+	context.URLHome = urlPathFormat(urlBase, "", api.FormatHTML, accessToken)
+	context.URLCollections = urlPathFormat(urlBase, api.TagFunctions, api.FormatHTML, accessToken)
+	context.URLCollection = urlPathFormat(urlBase, api.PathFunction(name), api.FormatHTML, accessToken)
+	context.URLItems = urlPathFormatQuery(urlBase, pathItems, api.FormatHTML, query, accessToken)
+	context.URLJSON = urlPathFormatQuery(urlBase, pathItems, api.FormatJSON, query, accessToken)
 	context.Group = "Functions"
 	context.Title = fn.ID
 	context.Function = fn
@@ -735,7 +740,7 @@ func writeFunItemsHTML(w http.ResponseWriter, name string, query string, urlBase
 	return writeHTML(w, nil, context, ui.PageFunctionItems())
 }
 
-func writeFunItemsGeoJSON(ctx context.Context, w http.ResponseWriter, name string, args map[string]string, param *data.QueryParam, urlBase string) *appError {
+func writeFunItemsGeoJSON(ctx context.Context, w http.ResponseWriter, name string, args map[string]string, param *data.QueryParam, urlBase string, accessToken string) *appError {
 	//--- query features data
 	features, err := catalogInstance.FunctionFeatures(ctx, name, args, param)
 	if err != nil {
@@ -747,7 +752,7 @@ func writeFunItemsGeoJSON(ctx context.Context, w http.ResponseWriter, name strin
 
 	//--- assemble resonse
 	content := api.NewFeatureCollectionInfo(features)
-	content.Links = linksItems(name, urlBase)
+	content.Links = linksItems(name, urlBase, accessToken)
 
 	return writeJSON(w, api.ContentTypeGeoJSON, content)
 }
