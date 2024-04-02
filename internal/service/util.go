@@ -214,7 +214,7 @@ func urlPathFormatQuery(urlBase string, path string, format string, query string
 	if query != "" {
 		url = fmt.Sprintf("%v?%v", url, query)
 	}
-	return url
+	return url + "/?access_token=" + accessToken
 }
 
 // formatBaseURL takes a hostname (baseHost) and a base path
