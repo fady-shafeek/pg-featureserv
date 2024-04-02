@@ -190,8 +190,8 @@ func getRequestVar(varname string, r *http.Request) string {
 
 // urlPathFormat provides a URL for the given base and path
 func urlPath(urlBase string, path string, accessToken string) string {
-	url := fmt.Sprintf("%v%v", urlBase, path)
-	return url + "/?access_token=" + accessToken
+	url := fmt.Sprintf("%v%v?%v%v", urlBase, path, "access_token=", accessToken)
+	return url
 }
 
 // urlPathFormat provides a URL for the given base, path and format
@@ -205,16 +205,16 @@ func urlPathFormat(urlBase string, path string, format string, accessToken strin
 	} else {
 		pathFormat = path + "." + format
 	}
-	url := fmt.Sprintf("%v%v", urlBase, pathFormat)
-	return url + "/?access_token=" + accessToken
+	url := fmt.Sprintf("%v%v?%v%v", urlBase, pathFormat, "access_token=", accessToken)
+	return url
 }
 
 func urlPathFormatQuery(urlBase string, path string, format string, query string, accessToken string) string {
 	url := urlPathFormat(urlBase, path, format, accessToken)
 	if query != "" {
-		url = fmt.Sprintf("%v?%v", url, query)
+		url = fmt.Sprintf("%v?%v&%v%v", url, query, "access_token=", accessToken)
 	}
-	return url + "/?access_token=" + accessToken
+	return url
 }
 
 // formatBaseURL takes a hostname (baseHost) and a base path
